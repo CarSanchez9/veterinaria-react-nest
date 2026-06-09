@@ -16,21 +16,27 @@ import { VacunaModule } from './vacuna/vacuna.module';
 import { ProductoModule } from './producto/producto.module';
 import { VentaModule } from './venta/venta.module';
 import { LogAccesoModule } from './log-acceso/log-acceso.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
     TypeOrmModule.forRoot({
       type: 'mysql',
 
-      host: 'localhost',
+      host: process.env.DB_HOST,
 
-      port: 3306,
+      port: Number(process.env.DB_PORT),
 
-      username: 'root',
+      username: process.env.DB_USERNAME,
 
-      password: '',
+      password: process.env.DB_PASSWORD,
 
-      database: 'veterinaria2',
+      database: process.env.DB_DATABASE,
 
       autoLoadEntities: true,
 
@@ -38,27 +44,16 @@ import { LogAccesoModule } from './log-acceso/log-acceso.module';
     }),
 
     RolModule,
-
     UsuarioModule,
-
     AuthModule,
-
     ClienteModule,
-
     MascotaModule,
-
     CitaModule,
-
     HistoriaClinicaModule,
-
     TratamientoModule,
-
     VacunaModule,
-
     ProductoModule,
-
     VentaModule,
-
     LogAccesoModule,
   ],
 
