@@ -44,7 +44,7 @@ export default function DashboardLayout() {
         <div className="p-6 border-b">
 
           <h1 className="text-2xl font-bold text-primary">
-            VetCare
+            Veterinaria
           </h1>
 
           <p className="text-sm text-gray-500">

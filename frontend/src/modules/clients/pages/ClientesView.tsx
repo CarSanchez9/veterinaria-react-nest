@@ -59,25 +59,50 @@ export default function ClientesView() {
 
   const guardarCliente = async () => {
     try {
-      if (
-        !nombre ||
-        !apellido ||
-        !ci
-      ) {
+
+      if (!nombre || !apellido || !ci) {
+        alert("Todos los campos son obligatorios");
+        return;
+      }
+
+      // Nombre: solo letras y espacios
+      const nombreRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+      if (!nombreRegex.test(nombre)) {
+        alert("El nombre solo puede contener letras");
+        return;
+      }
+
+      // Apellido: solo letras y espacios
+      if (!nombreRegex.test(apellido)) {
+        alert("El apellido solo puede contener letras");
+        return;
+      }
+
+      // CI: solo números
+      const ciRegex = /^[0-9]+$/;
+
+      if (!ciRegex.test(ci)) {
+        alert("El CI solo puede contener números");
+        return;
+      }
+
+      // Teléfono: exactamente 8 dígitos
+      const telefonoRegex = /^[0-9]{8}$/;
+
+      if (!telefonoRegex.test(telefono)) {
+        alert("El teléfono debe tener exactamente 8 dígitos");
         return;
       }
 
       if (editandoId) {
-        await actualizarCliente(
-          editandoId,
-          {
-            nombre,
-            apellido,
-            ci,
-            telefono,
-            direccion,
-          }
-        );
+        await actualizarCliente(editandoId, {
+          nombre,
+          apellido,
+          ci,
+          telefono,
+          direccion,
+        });
       } else {
         await crearCliente({
           nombre,
@@ -89,8 +114,8 @@ export default function ClientesView() {
       }
 
       await cargarClientes();
-
       limpiarFormulario();
+
     } catch (error) {
       console.error(error);
     }
@@ -173,7 +198,10 @@ export default function ClientesView() {
             value={nombre}
             onChange={(e) =>
               setNombre(
-                e.target.value
+                e.target.value.replace(
+                  /[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g,
+                  ""
+                )
               )
             }
             className="border p-3 rounded-lg"
@@ -184,7 +212,10 @@ export default function ClientesView() {
             value={apellido}
             onChange={(e) =>
               setApellido(
-                e.target.value
+                e.target.value.replace(
+                  /[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g,
+                  ""
+                )
               )
             }
             className="border p-3 rounded-lg"
@@ -195,7 +226,7 @@ export default function ClientesView() {
             value={ci}
             onChange={(e) =>
               setCi(
-                e.target.value
+                e.target.value.replace(/\D/g, "")
               )
             }
             className="border p-3 rounded-lg"
@@ -207,6 +238,8 @@ export default function ClientesView() {
             onChange={(e) =>
               setTelefono(
                 e.target.value
+                  .replace(/\D/g, "")
+                  .slice(0, 8)
               )
             }
             className="border p-3 rounded-lg"
@@ -250,7 +283,7 @@ export default function ClientesView() {
               <th>CI</th>
               <th>Nombre</th>
               <th>Apellido</th>
-              <th>Teléfono</th>
+              <th>Celular</th>
               <th>Dirección</th>
               <th>Acciones</th>
             </tr>
