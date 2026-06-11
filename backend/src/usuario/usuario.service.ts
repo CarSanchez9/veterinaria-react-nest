@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -26,6 +27,34 @@ export class UsuarioService {
   async create(
     createUsuarioDto: CreateUsuarioDto,
   ) {
+
+    const existeEmail =
+      await this.repositorio.findOne({
+        where: {
+          email:
+            createUsuarioDto.email,
+        },
+      });
+
+    if (existeEmail) {
+      throw new BadRequestException(
+        'El correo ya está registrado',
+      );
+    }
+
+    const existeUsuario =
+      await this.repositorio.findOne({
+        where: {
+          username:
+            createUsuarioDto.username,
+        },
+      });
+
+    if (existeUsuario) {
+      throw new BadRequestException(
+        'El nombre de usuario ya existe',
+      );
+    }
 
     const passwordHash =
       await bcrypt.hash(
@@ -94,6 +123,27 @@ export class UsuarioService {
     const usuario =
       await this.findOne(id);
 
+    if (
+      updateUsuarioDto.email &&
+      updateUsuarioDto.email !==
+        usuario.email
+    ) {
+
+      const existeEmail =
+        await this.repositorio.findOne({
+          where: {
+            email:
+              updateUsuarioDto.email,
+          },
+        });
+
+      if (existeEmail) {
+        throw new BadRequestException(
+          'El correo ya está registrado',
+        );
+      }
+    }
+
     if (updateUsuarioDto.password) {
 
       updateUsuarioDto.password =
@@ -113,7 +163,8 @@ export class UsuarioService {
     );
 
     return {
-      mensaje: 'Usuario actualizado',
+      mensaje:
+        'Usuario actualizado',
     };
   }
 

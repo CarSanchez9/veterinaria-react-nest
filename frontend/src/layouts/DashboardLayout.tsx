@@ -74,7 +74,8 @@ export default function DashboardLayout() {
           )}
 
           {(rol === "ADMIN" ||
-            rol === "RECEPCIONISTA") && (
+            rol === "RECEPCIONISTA " ||
+            rol === "VETERINARIO") && (
 
               <Link
                 to="/dashboard/clientes"
@@ -86,7 +87,6 @@ export default function DashboardLayout() {
             )}
 
           {(rol === "ADMIN" ||
-            rol === "RECEPCIONISTA" ||
             rol === "VETERINARIO") && (
 
               <Link
@@ -160,7 +160,7 @@ export default function DashboardLayout() {
             )}
 
           {(rol === "ADMIN" ||
-            rol === "VETERINARIO") && (
+            rol === "VETERINARIO" || rol === "RECEPCIONISTA") && (
 
               <Link
                 to="/dashboard/inventario"

@@ -37,6 +37,49 @@ export default function UsuarioView() {
   useEffect(() => {
     cargarUsuarios();
   }, []);
+  const [mostrarPassword, setMostrarPassword] =
+    useState(false);
+  const obtenerFortaleza = (
+    password: string
+  ) => {
+
+    if (password.length < 6) {
+      return {
+        texto: "🔴 Débil",
+        color: "text-red-500",
+      };
+    }
+
+    const tieneMayuscula =
+      /[A-Z]/.test(password);
+
+    const tieneMinuscula =
+      /[a-z]/.test(password);
+
+    const tieneNumero =
+      /[0-9]/.test(password);
+
+    const tieneEspecial =
+      /[^A-Za-z0-9]/.test(password);
+
+    if (
+      password.length >= 8 &&
+      tieneMayuscula &&
+      tieneMinuscula &&
+      tieneNumero &&
+      tieneEspecial
+    ) {
+      return {
+        texto: "🟢 Fuerte",
+        color: "text-green-600",
+      };
+    }
+
+    return {
+      texto: "🟡 Intermedia",
+      color: "text-yellow-500",
+    };
+  };
 
   const cargarUsuarios =
     async () => {
@@ -68,41 +111,100 @@ export default function UsuarioView() {
     });
   };
 
-  const guardarUsuario =
-    async () => {
+  const guardarUsuario = async () => {
 
-      try {
+    try {
 
-        if (
-          !formData.username ||
-          !formData.email
-        ) {
-          alert("Complete los campos");
+      if (!formData.username || !formData.email) {
+        alert("Todos los campos son obligatorios");
+        return;
+      }
+
+      if (!editando && !formData.password) {
+        alert("La contraseña es obligatoria");
+        return;
+      }
+
+      const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailRegex.test(formData.email)) {
+        alert("Debe ingresar un correo válido");
+        return;
+      }
+
+      if (!editando) {
+
+        const fortaleza =
+          obtenerFortaleza(formData.password);
+
+        if (fortaleza.texto !== "🟢 Fuerte") {
+
+          alert(
+            "La contraseña debe ser fuerte. Ejemplo: Carlos123@"
+          );
+
           return;
         }
+      }
 
-        if (editando) {
+      if (editando) {
 
-          await actualizarUsuario(
-            editando,
-            formData
-          );
+        const datosActualizar: any = {
+          username: formData.username,
+          email: formData.email,
+          idRol: formData.idRol,
+        };
 
-        } else {
-
-          await crearUsuario(
-            formData
-          );
+        if (formData.password.trim() !== "") {
+          datosActualizar.password =
+            formData.password;
         }
 
-        limpiarFormulario();
+        await actualizarUsuario(
+          editando,
+          datosActualizar
+        );
 
-        cargarUsuarios();
+      } else {
 
-      } catch (error) {
-        console.error(error);
+        await crearUsuario(formData);
+
       }
-    };
+
+      limpiarFormulario();
+
+      await cargarUsuarios();
+
+      alert(
+        editando
+          ? "Usuario actualizado correctamente"
+          : "Usuario registrado correctamente"
+      );
+
+    } catch (error: any) {
+
+      console.error(error);
+
+      if (error.response?.data?.message) {
+
+        const mensajes =
+          Array.isArray(
+            error.response.data.message
+          )
+            ? error.response.data.message.join("\n")
+            : error.response.data.message;
+
+        alert(mensajes);
+
+      } else {
+
+        alert("Error al guardar usuario");
+
+      }
+
+    }
+  };
 
   const editarUsuario =
     (usuario: Usuario) => {
@@ -234,19 +336,49 @@ export default function UsuarioView() {
             }
             className="border p-3 rounded-lg"
           />
+          <div className="relative">
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={
-              formData.password
-            }
-            onChange={
-              handleChange
-            }
-            className="border p-3 rounded-lg"
-          />
+            <input
+              type={
+                mostrarPassword
+                  ? "text"
+                  : "password"
+              }
+              name="password"
+              placeholder="Password"
+              value={
+                formData.password
+              }
+              onChange={
+                handleChange
+              }
+              className="border p-3 rounded-lg w-full pr-12"
+            />
+
+            <button
+              type="button"
+              onClick={() =>
+                setMostrarPassword(
+                  !mostrarPassword
+                )
+              }
+              className="absolute right-3 top-3"
+            >
+              {mostrarPassword
+                ? "🙈"
+                : "👁️"}
+            </button>
+
+          </div>
+          {formData.password && (
+            <p
+              className={`mt-2 font-semibold ${obtenerFortaleza(formData.password).color
+                }`}
+            >
+              Fortaleza:{" "}
+              {obtenerFortaleza(formData.password).texto}
+            </p>
+          )}
 
           <select
             name="idRol"
@@ -263,11 +395,11 @@ export default function UsuarioView() {
             </option>
 
             <option value={2}>
-              Veterinario
+              Recepcionista
             </option>
 
             <option value={3}>
-              Recepcionista
+              Veterinario
             </option>
 
           </select>

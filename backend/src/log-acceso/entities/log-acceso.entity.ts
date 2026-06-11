@@ -25,4 +25,6 @@ export class LogAcceso {
     nullable: true,
   })
   ip: string;
+  
+
 }

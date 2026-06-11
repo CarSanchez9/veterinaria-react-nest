@@ -13,4 +13,5 @@ export class CreateLogAccesoDto {
 
   @IsNotEmpty()
   ip: string;
+
 }

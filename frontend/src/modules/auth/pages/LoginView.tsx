@@ -35,7 +35,16 @@ export default function LoginView() {
 
     return "";
   };
+  const [num1] = useState(
+    Math.floor(Math.random() * 10) + 1
+  );
 
+  const [num2] = useState(
+    Math.floor(Math.random() * 10) + 1
+  );
+
+  const [captcha, setCaptcha] =
+    useState("");
   const strength = getPasswordStrength();
   const handleLogin = async (
     e: React.FormEvent
@@ -43,11 +52,22 @@ export default function LoginView() {
 
     e.preventDefault();
 
+    if (
+      Number(captcha) !==
+      num1 + num2
+    ) {
+      setError(
+        "CAPTCHA incorrecto"
+      );
+      return;
+    }
+
     try {
+
       const data =
         await login(
           email,
-          password,
+          password
         );
 
       localStorage.setItem(
@@ -156,7 +176,7 @@ export default function LoginView() {
               </button>
             </div>
 
-            {/* Seguridad */}
+            {/* Seguridad 
             {password && (
               <p className="mt-2 text-sm">
                 Seguridad:
@@ -171,22 +191,32 @@ export default function LoginView() {
                   {strength}
                 </span>
               </p>
-            )}
+            )}*/}
           </div>
 
           {/* CAPTCHA */}
-          <div className="border rounded-lg p-4 flex items-center gap-3">
+          <div className="border rounded-lg p-4">
+
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              CAPTCHA
+            </label>
+
+            <p className="font-bold text-lg mb-2">
+              ¿Cuánto es {num1} + {num2}?
+            </p>
+
             <input
-              type="checkbox"
-              checked={captchaChecked}
+              type="number"
+              value={captcha}
               onChange={(e) =>
-                setCaptchaChecked(e.target.checked)
+                setCaptcha(
+                  e.target.value
+                )
               }
+              placeholder="Respuesta"
+              className="w-full px-4 py-3 border rounded-lg"
             />
 
-            <span className="text-sm text-gray-700">
-              No soy un robot
-            </span>
           </div>
 
           {/* Botón */}
@@ -198,7 +228,7 @@ export default function LoginView() {
           </button>
         </form>
 
-        {/* Registro */}
+        {/* Registro 
         <p className="text-center text-sm text-gray-500 mt-6">
           ¿No tienes cuenta?{" "}
           <Link
@@ -207,7 +237,7 @@ export default function LoginView() {
           >
             Regístrate
           </Link>
-        </p>
+        </p>*/}
       </div>
     </div>
   );
